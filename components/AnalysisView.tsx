@@ -1,5 +1,4 @@
 
-
 import React, { useState, useMemo, useRef } from 'react';
 import { Zone, AnalysisReport, UserRole, User } from '../types';
 import { generateZoneAnalysis } from '../services/geminiService';
@@ -265,8 +264,20 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
     }).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   }, [analyses, zone.id, filterYear, filterMonth]);
 
-  const uniqueYears = Array.from(new Set(analyses.map(a => new Date(a.timestamp).getFullYear().toString())));
-  const uniqueMonths = Array.from(new Set(analyses.map(a => new Date(a.timestamp).toLocaleString('default', { month: 'long' }))));
+  // Derive unique years and sort descending
+  const uniqueYears = useMemo(() => {
+    return Array.from(new Set(analyses.map(a => new Date(a.timestamp).getFullYear().toString())))
+      .sort((a, b) => Number(b) - Number(a));
+  }, [analyses]);
+
+  // Derive unique months and sort chronologically
+  const uniqueMonths = useMemo(() => {
+    return Array.from(new Set(analyses.map(a => new Date(a.timestamp).toLocaleString('default', { month: 'long' }))))
+      .sort((a, b) => {
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        return months.indexOf(a) - months.indexOf(b);
+      });
+  }, [analyses]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">

@@ -1,7 +1,5 @@
 {
-  "name": "AQI Intervention Lab",
+  "name": "Vayu-Net",
   "description": "An AI-powered platform for environmental teams to monitor air quality, analyze pollution causes, and manage intervention projects end-to-end.",
-  "requestFramePermissions": [
-    "microphone"
-  ]
+  "requestFramePermissions": []
 }
