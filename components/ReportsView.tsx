@@ -1,3 +1,5 @@
+
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Zone, UserRole, AnalysisReport, InterventionProject, ProjectStatus } from '../types';
 import { MOCK_CITIES } from '../constants';
@@ -193,10 +195,10 @@ const ReportsView: React.FC<ReportsViewProps> = ({ zone, userRole, analyses, pro
 
   const getColorForType = (type: ReportCategory) => {
     switch (type) {
-        case 'Causal Analysis': return 'bg-purple-100 text-purple-600';
-        case 'Intervention Report': return 'bg-green-100 text-green-600';
-        case 'Data Log': return 'bg-blue-100 text-blue-600';
-        default: return 'bg-slate-100 text-slate-600';
+        case 'Causal Analysis': return 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300';
+        case 'Intervention Report': return 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-300';
+        case 'Data Log': return 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300';
+        default: return 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300';
     }
   };
 
@@ -209,14 +211,14 @@ const ReportsView: React.FC<ReportsViewProps> = ({ zone, userRole, analyses, pro
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-            <h2 className="text-2xl font-bold text-slate-800">Reports & Data Archive</h2>
-            <p className="text-slate-500">Centralized repository for completed analyses, intervention reports, and raw data.</p>
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Reports & Data Archive</h2>
+            <p className="text-slate-500 dark:text-slate-400">Centralized repository for completed analyses, intervention reports, and raw data.</p>
         </div>
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-        <div className="flex items-center gap-2 mb-3 text-slate-700 font-medium text-sm">
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="flex items-center gap-2 mb-3 text-slate-700 dark:text-slate-200 font-medium text-sm">
              <Filter size={16} /> Filter Repository
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -227,7 +229,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ zone, userRole, analyses, pro
                 <select 
                     value={selectedCity}
                     onChange={(e) => handleCityChange(e.target.value)}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700 dark:text-slate-200"
                 >
                     {MOCK_CITIES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
                 </select>
@@ -239,7 +241,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ zone, userRole, analyses, pro
                 <select 
                     value={selectedZone}
                     onChange={(e) => setSelectedZone(e.target.value)}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700 dark:text-slate-200"
                     disabled={selectedCity === 'All'}
                 >
                     <option value="All">All Zones</option>
@@ -253,7 +255,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ zone, userRole, analyses, pro
                 <select 
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value as ReportCategory)}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700 dark:text-slate-200"
                 >
                     <option value="All">All Types</option>
                     <option value="Causal Analysis">Causal Analysis</option>
@@ -268,7 +270,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ zone, userRole, analyses, pro
                 <select 
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(e.target.value)}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700 dark:text-slate-200"
                 >
                     <option value="All">All Years</option>
                     {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
@@ -281,7 +283,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ zone, userRole, analyses, pro
                 <select 
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700 dark:text-slate-200"
                 >
                     <option value="All">All Months</option>
                     {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
@@ -291,13 +293,13 @@ const ReportsView: React.FC<ReportsViewProps> = ({ zone, userRole, analyses, pro
       </div>
 
       {/* Reports List */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-h-[400px]">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden min-h-[400px]">
         {filteredReports.length > 0 ? (
             <div className="grid gap-1">
             {filteredReports.map((report, idx) => (
                 <div 
                 key={`${report.type}-${report.id}`} 
-                className={`p-5 flex flex-col md:flex-row md:items-center justify-between transition-colors ${idx !== filteredReports.length - 1 ? 'border-b border-slate-100' : ''} hover:bg-slate-50 group`}
+                className={`p-5 flex flex-col md:flex-row md:items-center justify-between transition-colors ${idx !== filteredReports.length - 1 ? 'border-b border-slate-100 dark:border-slate-800' : ''} hover:bg-slate-50 dark:hover:bg-slate-800 group`}
                 >
                 <div className="flex items-start gap-4 mb-4 md:mb-0">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${getColorForType(report.type)}`}>
@@ -305,26 +307,26 @@ const ReportsView: React.FC<ReportsViewProps> = ({ zone, userRole, analyses, pro
                     </div>
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{report.type}</span>
-                            <span className="text-slate-300">•</span>
-                            <span className="text-xs font-medium text-slate-500">{report.zoneName}, {report.city}</span>
+                            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{report.type}</span>
+                            <span className="text-slate-300 dark:text-slate-600">•</span>
+                            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{report.zoneName}, {report.city}</span>
                         </div>
-                        <h3 className="font-semibold text-slate-800 text-lg md:text-base line-clamp-1">{report.title}</h3>
-                        <p className="text-sm text-slate-500 mt-1">
+                        <h3 className="font-semibold text-slate-800 dark:text-slate-200 text-lg md:text-base line-clamp-1">{report.title}</h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                             {new Date(report.date).toLocaleDateString()} • {report.size} • {report.format}
                         </p>
                     </div>
                 </div>
                 
                 {isGuest ? (
-                    <button disabled className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-100 text-slate-400 rounded-lg text-sm font-medium cursor-not-allowed w-full md:w-auto">
+                    <button disabled className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 rounded-lg text-sm font-medium cursor-not-allowed w-full md:w-auto">
                     <Lock size={16} />
                     Sign in to Download
                     </button>
                 ) : (
                     <button 
                         onClick={() => handleDownload(report.title)}
-                        className="flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:border-indigo-600 hover:text-indigo-600 text-slate-600 rounded-lg text-sm font-medium transition-colors shadow-sm w-full md:w-auto"
+                        className="flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-indigo-600 dark:hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-medium transition-colors shadow-sm w-full md:w-auto"
                     >
                     <Download size={16} />
                     Download
@@ -335,19 +337,19 @@ const ReportsView: React.FC<ReportsViewProps> = ({ zone, userRole, analyses, pro
             </div>
         ) : (
             <div className="flex flex-col items-center justify-center h-full py-20">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4 text-slate-400">
+                <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 text-slate-400 dark:text-slate-500">
                     <Filter size={32} />
                 </div>
-                <h3 className="text-lg font-medium text-slate-600">No reports found</h3>
-                <p className="text-slate-400 max-w-xs text-center">Try adjusting your filters for City, Zone, or Date.</p>
+                <h3 className="text-lg font-medium text-slate-600 dark:text-slate-400">No reports found</h3>
+                <p className="text-slate-400 dark:text-slate-500 max-w-xs text-center">Try adjusting your filters for City, Zone, or Date.</p>
             </div>
         )}
       </div>
       
       {isGuest && (
-        <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-6 text-center">
-          <h4 className="text-indigo-900 font-semibold mb-2">Restricted Access</h4>
-          <p className="text-indigo-700 text-sm">
+        <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30 rounded-xl p-6 text-center">
+          <h4 className="text-indigo-900 dark:text-indigo-300 font-semibold mb-2">Restricted Access</h4>
+          <p className="text-indigo-700 dark:text-indigo-400 text-sm">
             Sign in as a Citizen or Scientific team member to download full reports and access historical data archives.
           </p>
         </div>

@@ -1,4 +1,5 @@
 
+
 export interface PollutantMetrics {
   pm25: number;
   pm10: number;
@@ -35,6 +36,8 @@ export interface AnalysisReport {
   summary: string;
   recommendation: string;
   generatedBy?: string;
+  attachedImage?: string; // Base64 data URL of the analyzed image
+  attachedAudio?: string; // Base64 or Blob URL of the analyzed site audio
 }
 
 export enum ProjectStatus {

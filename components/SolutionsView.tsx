@@ -1,9 +1,10 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Zone, AnalysisReport, InterventionProject, ProjectStatus, UserRole, ProjectPhase, PhaseStatus } from '../types';
 import { generateInterventionPlan } from '../services/geminiService';
 import { formatAnalysisTitle, getRelativeTime } from '../utils';
-import { Plus, Loader2, Layout, Calendar, ChevronRight, ChevronDown, ChevronUp, CheckCircle2, Clock, ArrowRight, Lock, Filter, FileText, Download, Play, Archive, AlertCircle, Sparkles, Send, User as UserIcon, ShieldCheck } from 'lucide-react';
+import { Plus, Loader2, Layout, Calendar, ChevronRight, ChevronDown, ChevronUp, CheckCircle2, Clock, ArrowRight, Lock, Filter, FileText, Download, Play, Archive, AlertCircle, Sparkles, Send, User as UserIcon, ShieldCheck, Target } from 'lucide-react';
 
 interface SolutionsViewProps {
   zone: Zone;
@@ -161,13 +162,16 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
        {/* HEADER */}
        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-            <h2 className="text-2xl font-bold text-slate-800">Intervention Board</h2>
-            <p className="text-slate-500">Agile management for pollution control initiatives in {zone.name}.</p>
+            <div className="flex items-center gap-2">
+                <Target className="text-emerald-700 dark:text-emerald-400" size={24} />
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Operations War Room</h2>
+            </div>
+            <p className="text-slate-500 dark:text-slate-400">Agile tactical command for pollution control initiatives in {zone.name}.</p>
         </div>
         {!isCreating && canCreateProject && (
              <button
                 onClick={() => setIsCreating(true)}
-                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-medium transition-all shadow-lg shadow-indigo-200"
+                className="flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-3 rounded-xl font-medium transition-all shadow-lg shadow-emerald-200 dark:shadow-emerald-900/50"
             >
                 <Plus size={20} />
                 Create New Proposal
@@ -177,15 +181,15 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
 
       {/* SECTION 1: CREATION WIZARD */}
       {isCreating && (
-        <div className="bg-white rounded-2xl border border-indigo-100 shadow-xl ring-4 ring-indigo-50/50 overflow-hidden animate-in slide-in-from-top-4 duration-300">
-            <div className="bg-indigo-50/50 p-6 border-b border-indigo-100 flex justify-between items-center">
-                <div className="flex items-center gap-2 text-indigo-800 font-bold">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-emerald-100 dark:border-emerald-900/50 shadow-xl ring-4 ring-emerald-50/50 dark:ring-emerald-900/20 overflow-hidden animate-in slide-in-from-top-4 duration-300">
+            <div className="bg-emerald-50/50 dark:bg-emerald-900/20 p-6 border-b border-emerald-100 dark:border-emerald-900/50 flex justify-between items-center">
+                <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold">
                     <Sparkles size={20} />
                     <h3>AI Intervention Generator</h3>
                 </div>
                 <button 
                     onClick={() => setIsCreating(false)} 
-                    className="text-slate-400 hover:text-slate-600 text-sm font-medium"
+                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-sm font-medium"
                 >
                     Cancel
                 </button>
@@ -195,13 +199,13 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
                 {/* Step 1: Select Analysis */}
                 <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                        <label className="block text-sm font-bold text-slate-700 uppercase tracking-wider">1. Select Source Analysis</label>
-                        <span className="text-xs text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded">Last 30 Days</span>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">1. Select Source Analysis</label>
+                        <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded">Last 30 Days</span>
                     </div>
                     
                     <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                         {recentAnalyses.length === 0 ? (
-                            <div className="p-8 text-center border border-dashed border-slate-200 rounded-xl text-slate-400">
+                            <div className="p-8 text-center border border-dashed border-slate-200 dark:border-slate-700 rounded-xl text-slate-400">
                                 <FileText size={24} className="mx-auto mb-2 opacity-50" />
                                 <p className="text-sm">No recent analysis reports found for {zone.name}.</p>
                                 <p className="text-xs">Run a new analysis in the Analysis tab first.</p>
@@ -213,19 +217,19 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
                                     onClick={() => setSelectedAnalysisId(analysis.id)}
                                     className={`p-4 rounded-xl border cursor-pointer transition-all ${
                                         selectedAnalysisId === analysis.id 
-                                        ? 'border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600' 
-                                        : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
+                                        ? 'border-emerald-600 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 ring-1 ring-emerald-600 dark:ring-emerald-500' 
+                                        : 'border-slate-200 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-700 hover:bg-slate-50 dark:hover:bg-slate-800'
                                     }`}
                                 >
                                     <div className="flex justify-between items-center mb-1">
-                                        <h4 className={`font-bold font-mono text-sm tracking-tight ${selectedAnalysisId === analysis.id ? 'text-indigo-900' : 'text-slate-800'}`}>
+                                        <h4 className={`font-bold font-mono text-sm tracking-tight ${selectedAnalysisId === analysis.id ? 'text-emerald-900 dark:text-emerald-200' : 'text-slate-800 dark:text-slate-200'}`}>
                                             {formatAnalysisTitle(analysis)}
                                         </h4>
                                         <span className="text-xs text-slate-400 font-medium whitespace-nowrap ml-2">
                                             {getRelativeTime(analysis.timestamp)}
                                         </span>
                                     </div>
-                                    <p className={`text-xs mt-1 line-clamp-2 ${selectedAnalysisId === analysis.id ? 'text-indigo-700' : 'text-slate-500'}`}>
+                                    <p className={`text-xs mt-1 line-clamp-2 ${selectedAnalysisId === analysis.id ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}>
                                         {analysis.summary}
                                     </p>
                                 </div>
@@ -236,14 +240,14 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
 
                 {/* Step 2: Review & Submit */}
                 <div className="space-y-4 flex flex-col h-full">
-                    <label className="block text-sm font-bold text-slate-700 uppercase tracking-wider">2. Proposal Preview</label>
-                    <div className="flex-1 bg-slate-50 rounded-xl border border-slate-200 p-6 relative min-h-[300px]">
+                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">2. Proposal Preview</label>
+                    <div className="flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-800 p-6 relative min-h-[300px]">
                         {!generatedPlan ? (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
+                            <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
                                 {loading ? (
                                     <>
-                                        <Loader2 className="animate-spin mb-2 text-indigo-600" size={32} />
-                                        <p className="text-indigo-600 font-medium">Consulting Gemini AI...</p>
+                                        <Loader2 className="animate-spin mb-2 text-emerald-600" size={32} />
+                                        <p className="text-emerald-600 font-medium">Consulting Gemini AI...</p>
                                         <p className="text-xs mt-1">Analyzing root causes & generating phases</p>
                                     </>
                                 ) : (
@@ -256,27 +260,27 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
                             </div>
                         ) : (
                             <div className="space-y-4 h-full overflow-y-auto max-h-[350px] pr-2">
-                                <div className="border-l-4 border-indigo-500 pl-4 py-1">
-                                    <h4 className="font-bold text-lg text-slate-800">{generatedPlan.title}</h4>
-                                    <p className="text-sm text-slate-500 mt-1">Based on: {recentAnalyses.find(a => a.id === selectedAnalysisId)?.summary.substring(0, 40)}...</p>
+                                <div className="border-l-4 border-emerald-500 pl-4 py-1">
+                                    <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100">{generatedPlan.title}</h4>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Based on: {recentAnalyses.find(a => a.id === selectedAnalysisId)?.summary.substring(0, 40)}...</p>
                                 </div>
-                                <p className="text-sm text-slate-700 bg-white p-3 rounded border border-slate-100 italic">
+                                <p className="text-sm text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 p-3 rounded border border-slate-100 dark:border-slate-700 italic">
                                     "{generatedPlan.notes}"
                                 </p>
                                 <div className="space-y-3 pt-2">
                                     {generatedPlan.phases?.map((ph, i) => (
-                                        <div key={i} className="text-sm bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                        <div key={i} className="text-sm bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
                                             <div className="flex items-center gap-2 mb-1">
-                                                <div className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold">
+                                                <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-xs font-bold">
                                                     {i + 1}
                                                 </div>
-                                                <span className="font-bold text-slate-800">{ph.name}</span>
+                                                <span className="font-bold text-slate-800 dark:text-slate-100">{ph.name}</span>
                                             </div>
-                                            <p className="text-slate-600 pl-7 text-xs mb-2">{ph.description}</p>
+                                            <p className="text-slate-600 dark:text-slate-400 pl-7 text-xs mb-2">{ph.description}</p>
                                             <div className="pl-7 flex flex-wrap gap-2">
                                                 {ph.actions?.map((act, idx) => (
-                                                    <span key={idx} className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] rounded border border-slate-200">
-                                                        {act}
+                                                    <span key={idx} className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 text-[10px] rounded border border-slate-200 dark:border-slate-600">
+                                                        • {act}
                                                     </span>
                                                 ))}
                                             </div>
@@ -292,7 +296,7 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
                              <button 
                                 onClick={handleGeneratePlan}
                                 disabled={!selectedAnalysisId || loading}
-                                className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="w-full py-3 bg-slate-900 dark:bg-slate-700 text-white rounded-xl font-bold hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                              >
                                 <Sparkles size={18} />
                                 Generate AI Plan
@@ -300,7 +304,7 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
                          ) : (
                              <button 
                                 onClick={handleSubmitProposal}
-                                className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-200"
+                                className="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-emerald-200 dark:shadow-emerald-900/40"
                              >
                                 <Send size={18} />
                                 Submit to Board for Approval
@@ -317,30 +321,30 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
          
          {/* Lane 1: Pending Approvals */}
          <div>
-            <h3 className="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2">
                 <Clock className="text-yellow-600" size={20} />
                 Pending Board Approval <span className="text-slate-400 text-sm font-normal">({pendingProjects.length})</span>
             </h3>
             
             {pendingProjects.length === 0 ? (
-                <div className="p-8 border-2 border-dashed border-slate-200 rounded-xl text-center text-slate-400 text-sm">
+                <div className="p-8 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl text-center text-slate-400 text-sm">
                     No proposals waiting for review in {zone.name}.
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {pendingProjects.map(project => (
-                        <div key={project.id} className="bg-yellow-50/50 rounded-2xl border border-yellow-200 p-6 flex flex-col h-full relative group hover:shadow-md transition-shadow">
+                        <div key={project.id} className="bg-yellow-50/50 dark:bg-yellow-900/10 rounded-2xl border border-yellow-200 dark:border-yellow-900/30 p-6 flex flex-col h-full relative group hover:shadow-md transition-shadow">
                             <div className="absolute top-4 right-4 text-yellow-600 opacity-0 group-hover:opacity-100 transition-opacity" title="Awaiting Approval">
                                 <AlertCircle size={20} />
                             </div>
                             <div className="mb-4 flex-1">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-white px-2 py-1 rounded border border-slate-200 mb-2 inline-block">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-white dark:bg-slate-800 dark:border-slate-700 px-2 py-1 rounded border border-slate-200 mb-2 inline-block">
                                     Draft
                                 </span>
-                                <h4 className="font-bold text-slate-800 text-lg mb-2">{project.title}</h4>
-                                <p className="text-sm text-slate-600 line-clamp-3">{project.notes}</p>
+                                <h4 className="font-bold text-slate-800 dark:text-yellow-100 text-lg mb-2">{project.title}</h4>
+                                <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3">{project.notes}</p>
                             </div>
-                            <div className="pt-4 border-t border-yellow-200/50">
+                            <div className="pt-4 border-t border-yellow-200/50 dark:border-yellow-900/30">
                                 <button 
                                     onClick={() => handleApproveProject(project)}
                                     className="w-full py-2 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
@@ -357,8 +361,8 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
 
          {/* Lane 2: Active Execution (Accordion / Detail View) */}
          <div>
-            <h3 className="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2">
-                <Play className="text-indigo-600" size={20} />
+            <h3 className="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2">
+                <Play className="text-emerald-600" size={20} />
                 In Execution <span className="text-slate-400 text-sm font-normal">({activeProjects.length})</span>
             </h3>
             
@@ -371,31 +375,31 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
                     const allPhasesComplete = completedPhases === totalPhases;
 
                     return (
-                        <div key={project.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all duration-300 ${isExpanded ? 'border-indigo-200 ring-1 ring-indigo-200' : 'border-slate-200'}`}>
+                        <div key={project.id} className={`bg-white dark:bg-slate-900 rounded-2xl border shadow-sm overflow-hidden transition-all duration-300 ${isExpanded ? 'border-emerald-200 dark:border-emerald-800 ring-1 ring-emerald-200 dark:ring-emerald-900/50' : 'border-slate-200 dark:border-slate-800'}`}>
                             
                             {/* Card Header / Summary Story */}
                             <div 
                                 onClick={() => setExpandedProjectId(isExpanded ? null : project.id)}
-                                className="p-5 flex flex-col md:flex-row items-start md:items-center justify-between cursor-pointer hover:bg-slate-50"
+                                className="p-5 flex flex-col md:flex-row items-start md:items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50"
                             >
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 text-[10px] font-bold uppercase">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></div> Active
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold uppercase">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div> Active
                                         </span>
-                                        <span className="text-xs text-slate-500 font-mono">{project.id}</span>
+                                        <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">{project.id}</span>
                                     </div>
-                                    <h4 className="font-bold text-slate-800 text-lg">{project.title}</h4>
+                                    <h4 className="font-bold text-slate-800 dark:text-slate-100 text-lg">{project.title}</h4>
                                     <div className="flex items-center gap-4 mt-2">
-                                        <span className="text-xs text-slate-500 flex items-center gap-1">
+                                        <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
                                             <Calendar size={12} /> Started: {new Date(project.startDate).toLocaleDateString()}
                                         </span>
                                         {/* Simple Progress Bar for Summary */}
                                         <div className="flex items-center gap-2 min-w-[120px]">
-                                            <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                                                <div className="h-full bg-indigo-600 rounded-full" style={{ width: `${progress}%` }}></div>
+                                            <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                                <div className="h-full bg-emerald-600 rounded-full" style={{ width: `${progress}%` }}></div>
                                             </div>
-                                            <span className="text-xs font-bold text-indigo-600">{progress}%</span>
+                                            <span className="text-xs font-bold text-emerald-600">{progress}%</span>
                                         </div>
                                     </div>
                                 </div>
@@ -406,18 +410,18 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
 
                             {/* Expanded Detail View (Roadmap Dashboard) */}
                             {isExpanded && (
-                                <div className="border-t border-slate-100 bg-slate-50/50 p-6 animate-in slide-in-from-top-2">
+                                <div className="border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 p-6 animate-in slide-in-from-top-2">
                                     <div className="max-w-4xl">
                                         <div className="mb-6 flex justify-between items-end">
                                             <div>
                                                 <h5 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Execution Roadmap</h5>
-                                                <p className="text-slate-600 text-sm">Complete phases sequentially to unlock project closure.</p>
+                                                <p className="text-slate-600 dark:text-slate-400 text-sm">Complete phases sequentially to unlock project closure.</p>
                                             </div>
                                         </div>
 
                                         <div className="space-y-4 relative">
                                             {/* Vertical Line */}
-                                            <div className="absolute left-6 top-4 bottom-4 w-0.5 bg-slate-200 z-0"></div>
+                                            <div className="absolute left-6 top-4 bottom-4 w-0.5 bg-slate-200 dark:bg-slate-800 z-0"></div>
 
                                             {project.phases.map((phase, idx) => {
                                                 const isCompleted = phase.status === 'COMPLETED';
@@ -431,10 +435,10 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
                                                 return (
                                                     <div key={phase.id} className={`relative z-10 flex gap-4 ${isLocked ? 'opacity-50' : ''}`}>
                                                         {/* Status Icon */}
-                                                        <div className={`w-12 h-12 rounded-full border-4 shrink-0 flex items-center justify-center bg-white transition-colors ${
+                                                        <div className={`w-12 h-12 rounded-full border-4 shrink-0 flex items-center justify-center bg-white dark:bg-slate-900 transition-colors ${
                                                             isCompleted ? 'border-green-500 text-green-600' :
-                                                            isInProgress ? 'border-indigo-500 text-indigo-600' :
-                                                            'border-slate-200 text-slate-400'
+                                                            isInProgress ? 'border-emerald-500 text-emerald-600' :
+                                                            'border-slate-200 dark:border-slate-700 text-slate-400'
                                                         }`}>
                                                             {isCompleted ? <CheckCircle2 size={20} /> : 
                                                              isInProgress ? <Loader2 size={20} className="animate-spin" /> :
@@ -442,29 +446,29 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
                                                         </div>
 
                                                         {/* Phase Card */}
-                                                        <div className="flex-1 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                                                        <div className="flex-1 bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                                                             <div className="flex flex-col md:flex-row justify-between gap-4 mb-3">
                                                                 <div>
                                                                     <div className="flex items-center gap-2 mb-1">
-                                                                        <h4 className="font-bold text-slate-800">{phase.name}</h4>
-                                                                        {isInProgress && <span className="text-[10px] font-bold bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded uppercase">In Progress</span>}
-                                                                        {isCompleted && <span className="text-[10px] font-bold bg-green-50 text-green-600 px-2 py-0.5 rounded uppercase">Done</span>}
+                                                                        <h4 className="font-bold text-slate-800 dark:text-slate-100">{phase.name}</h4>
+                                                                        {isInProgress && <span className="text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded uppercase">In Progress</span>}
+                                                                        {isCompleted && <span className="text-[10px] font-bold bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-2 py-0.5 rounded uppercase">Done</span>}
                                                                     </div>
-                                                                    <p className="text-sm text-slate-600">{phase.description}</p>
+                                                                    <p className="text-sm text-slate-600 dark:text-slate-400">{phase.description}</p>
                                                                 </div>
                                                                 
                                                                 {/* Assignee Section */}
                                                                 <div className="min-w-[180px]">
                                                                     <label className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Scientific Lead</label>
                                                                     {phase.assignedTo ? (
-                                                                        <div className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-200 text-sm font-medium text-slate-700">
-                                                                            <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs">
+                                                                        <div className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300">
+                                                                            <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-xs">
                                                                                 {phase.assignedTo.charAt(0)}
                                                                             </div>
                                                                             {phase.assignedTo}
                                                                         </div>
                                                                     ) : (
-                                                                        <div className="text-sm text-slate-400 italic p-2 bg-slate-50 rounded-lg border border-dashed border-slate-300">
+                                                                        <div className="text-sm text-slate-400 italic p-2 bg-slate-50 dark:bg-slate-800 rounded-lg border border-dashed border-slate-300 dark:border-slate-700">
                                                                             Unassigned
                                                                         </div>
                                                                     )}
@@ -474,7 +478,7 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
                                                             {/* Actions List */}
                                                             <div className="flex flex-wrap gap-2 mb-4">
                                                                 {phase.actions.map((action, i) => (
-                                                                    <span key={i} className="px-2 py-1 bg-slate-50 text-slate-600 text-xs rounded border border-slate-100">
+                                                                    <span key={i} className="px-2 py-1 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs rounded border border-slate-100 dark:border-slate-700">
                                                                         • {action}
                                                                     </span>
                                                                 ))}
@@ -482,11 +486,11 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
 
                                                             {/* Phase Controls */}
                                                             {!isCompleted && !isLocked && (
-                                                                <div className="pt-3 border-t border-slate-100 flex justify-end">
+                                                                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end">
                                                                     {isPending ? (
                                                                         <button 
                                                                             onClick={() => assignUserToPhase(project, phase.id)}
-                                                                            className="px-4 py-2 bg-slate-800 text-white text-sm font-bold rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-2"
+                                                                            className="px-4 py-2 bg-slate-800 dark:bg-slate-700 text-white text-sm font-bold rounded-lg hover:bg-slate-700 dark:hover:bg-slate-600 transition-colors flex items-center gap-2"
                                                                         >
                                                                             Assign Lead & Start Phase <ArrowRight size={16} />
                                                                         </button>
@@ -507,17 +511,17 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
                                         </div>
 
                                         {/* Project Closure Action */}
-                                        <div className="mt-8 flex justify-end pt-6 border-t border-slate-200">
+                                        <div className="mt-8 flex justify-end pt-6 border-t border-slate-200 dark:border-slate-800">
                                             {allPhasesComplete ? (
                                                 <button 
                                                     onClick={() => handleReviewAndClose(project)}
-                                                    className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 flex items-center gap-2"
+                                                    className="px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-200 dark:shadow-emerald-900/40 flex items-center gap-2"
                                                 >
                                                     <ShieldCheck size={20} />
                                                     Review & Close Project
                                                 </button>
                                             ) : (
-                                                <div className="flex items-center gap-2 text-slate-400 text-sm font-medium bg-slate-100 px-4 py-2 rounded-lg cursor-not-allowed">
+                                                <div className="flex items-center gap-2 text-slate-400 text-sm font-medium bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-lg cursor-not-allowed">
                                                     <Lock size={16} />
                                                     Complete all phases to close project
                                                 </div>
@@ -531,8 +535,8 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
                 })}
                 
                 {activeProjects.length === 0 && (
-                    <div className="p-12 bg-slate-50 border border-slate-200 rounded-xl text-center">
-                        <p className="text-slate-500">No active projects running in {zone.name}. Approve a proposal to begin execution.</p>
+                    <div className="p-12 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl text-center">
+                        <p className="text-slate-500 dark:text-slate-400">No active projects running in {zone.name}. Approve a proposal to begin execution.</p>
                     </div>
                 )}
             </div>
@@ -540,9 +544,9 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
       </div>
 
       {/* SECTION 3: ARCHIVE */}
-      <div className="pt-8 border-t border-slate-200 mt-12">
+      <div className="pt-8 border-t border-slate-200 dark:border-slate-800 mt-12">
         <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center mb-6 gap-4">
-            <h3 className="text-lg font-bold text-slate-700 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
                 <Archive className="text-slate-400" size={20} />
                 Completed Projects Archive <span className="text-slate-400 text-sm font-normal">({completedProjects.length})</span>
             </h3>
@@ -553,7 +557,7 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
                  <select 
                     value={archiveFilterYear}
                     onChange={(e) => setArchiveFilterYear(e.target.value)}
-                    className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-emerald-500"
                 >
                     <option value="All">All Years</option>
                     {availableArchiveYears.map(y => <option key={y} value={y}>{y}</option>)}
@@ -561,9 +565,9 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
             </div>
         </div>
         
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
             <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs">
+                <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase text-xs">
                     <tr>
                         <th className="px-6 py-4 font-semibold">Project Title</th>
                         <th className="px-6 py-4 font-semibold">Start Date</th>
@@ -571,22 +575,22 @@ const SolutionsView: React.FC<SolutionsViewProps> = ({ zone, analyses, projects,
                         <th className="px-6 py-4 font-semibold text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {completedProjects.map(project => (
-                        <tr key={project.id} className="hover:bg-slate-50 transition-colors">
-                            <td className="px-6 py-4 font-medium text-slate-800">{project.title}</td>
-                            <td className="px-6 py-4 text-slate-500">{project.startDate}</td>
+                        <tr key={project.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="px-6 py-4 font-medium text-slate-800 dark:text-slate-200">{project.title}</td>
+                            <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{project.startDate}</td>
                             <td className="px-6 py-4">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
                                     {project.phases.length} / {project.phases.length}
                                 </span>
                             </td>
                             <td className="px-6 py-4 text-right">
                                 <div className="flex justify-end gap-2">
-                                    <button className="p-2 hover:bg-indigo-50 text-indigo-600 rounded-lg transition-colors" title="Download Report">
+                                    <button className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg transition-colors" title="Download Report">
                                         <Download size={16} />
                                     </button>
-                                    <button className="p-2 hover:bg-indigo-50 text-indigo-600 rounded-lg transition-colors" title="Generate Summary Blog">
+                                    <button className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg transition-colors" title="Generate Summary Blog">
                                         <FileText size={16} />
                                     </button>
                                 </div>

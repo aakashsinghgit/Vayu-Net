@@ -1,3 +1,5 @@
+
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { AnalysisReport, InterventionProject, Zone, PhaseStatus } from "../types";
 
@@ -6,77 +8,134 @@ const getAiClient = () => {
   return new GoogleGenAI({ apiKey: process.env.API_KEY });
 };
 
-export const generateZoneAnalysis = async (zone: Zone): Promise<Omit<AnalysisReport, 'id' | 'timestamp'>> => {
+export const generateZoneAnalysis = async (zone: Zone, imageFile?: File, audioBlob?: Blob): Promise<Omit<AnalysisReport, 'id' | 'timestamp'>> => {
   const ai = getAiClient();
   
-  // System Instruction: Sets the persona and analytical framework
+  // System Instruction: Tri-Modal Forensic Expert
+  // Explicitly requesting JSON structure in the prompt since responseSchema is disabled with tools
   const systemInstruction = `
-    You are an expert Environmental Data Scientist specializing in urban air quality. 
-    Your task is to analyze real-time sensor data to diagnose pollution events.
+    You are an expert Environmental Forensic Scientist. 
+    You have access to three data streams: 
+    1. **Sensor Data** (Chemical composition).
+    2. **Visual Feed** (Site images).
+    3. **Audio Feed** (Recorded ambient noise from the site/drone).
+    
+    Your goal is to triangulate these sources to find the *exact* cause of pollution.
 
     Analytical Framework:
-    1. **Particulate Ratio (PM2.5/PM10):** 
-       - High ratio (>0.6) suggests combustion (traffic, biomass burning).
-       - Low ratio (<0.5) suggests coarse dust (construction, road dust).
-    2. **Gaseous Markers:**
-       - High NO2 correlates with vehicular exhaust.
-       - High Ozone (O3) suggests photochemical smog requires sunlight and precursors.
-    3. **Context:** Use the zone description (e.g., "Industrial", "Residential") to weight probabilities.
+    - **Listen (Audio):** Identify machinery (jackhammers = construction), traffic patterns (horns/idling engines), or silence.
+    - **See (Vision):** Look for smoke color (Black = Diesel, White = Biomass), dust plumes, or traffic density.
+    - **Measure (Sensors):** Use PM ratios and Gas levels to confirm the physical evidence.
+    - **Search (Grounding):** Check for reported events like fires or traffic accidents in the city.
 
-    Output Rule: Return ONLY valid JSON matching the schema.
+    If inputs conflict (e.g., Image is clear, but Sensors are high), use the Audio to resolve it.
+
+    **OUTPUT FORMAT RULE:** 
+    You MUST return the result as a raw JSON object (no markdown formatting) with this exact structure:
+    {
+      "summary": "Executive summary citing specific evidence.",
+      "recommendation": "Primary actionable advice.",
+      "causes": [
+        { "factor": "Source Name", "confidence": 0-100, "reasoning": "Explanation." }
+      ]
+    }
   `;
 
-  // User Prompt: The specific data context
-  const prompt = `
-    Analyze the following Air Quality Zone data:
+  // Construct Multi-modal Content
+  const parts: any[] = [];
+
+  // 1. Add Image if present
+  if (imageFile) {
+    try {
+        const base64Data = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const result = reader.result as string;
+                const base64 = result.split(',')[1];
+                resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(imageFile);
+        });
+
+        parts.push({
+            inlineData: {
+                mimeType: imageFile.type,
+                data: base64Data
+            }
+        });
+    } catch (e) {
+        console.error("Failed to process image", e);
+    }
+  }
+
+  // 2. Add Audio if present
+  if (audioBlob) {
+     try {
+        const base64Data = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const result = reader.result as string;
+                // Audio blob to data URL typically looks like "data:audio/webm;base64,..."
+                const base64 = result.split(',')[1];
+                resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(audioBlob);
+        });
+
+        parts.push({
+            inlineData: {
+                mimeType: audioBlob.type || 'audio/webm', // Default to webm for browser recordings
+                data: base64Data
+            }
+        });
+     } catch (e) {
+         console.error("Failed to process audio", e);
+     }
+  }
+
+  // 3. Add Text Prompt
+  const promptText = `
+    Analyze the following Tri-Modal Data for Zone: ${zone.name}, ${zone.city}.
     
-    Zone Profile:
-    - Name: ${zone.name}
-    - City: ${zone.city}
+    [Sensor Data]
+    - AQI: ${zone.currentAqi}
+    - PM2.5: ${zone.metrics.pm25} | PM10: ${zone.metrics.pm10}
+    - NO2: ${zone.metrics.no2} | O3: ${zone.metrics.o3}
     - Description: ${zone.description}
     
-    Sensor Readings:
-    - AQI: ${zone.currentAqi}
-    - PM 2.5: ${zone.metrics.pm25} µg/m³
-    - PM 10: ${zone.metrics.pm10} µg/m³
-    - NO2: ${zone.metrics.no2} ppb
-    - Ozone (O3): ${zone.metrics.o3} ppb
+    [Visual/Audio Evidence]
+    ${imageFile ? '- Image attached.' : '- No visual feed.'}
+    ${audioBlob ? '- Audio recording attached (Remote Feed). Analyze background noise.' : '- No audio feed.'}
     
-    Generate a diagnosis with probable causes, a concise executive summary, and a primary recommendation.
+    Task:
+    1. Identify the root cause.
+    2. If Audio is present, explicitly mention what sound signatures were detected (e.g., heavy machinery vs traffic).
+    3. If Image is present, correlate it with the sensor values.
+    4. Use Google Search to check for relevant news (fires, traffic) in ${zone.city} today.
   `;
+  
+  parts.push({ text: promptText });
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
+      model: 'gemini-3-pro-preview',
+      contents: { parts: parts },
       config: {
         systemInstruction: systemInstruction,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            summary: { type: Type.STRING, description: "Executive summary of the pollution event (max 2 sentences)." },
-            recommendation: { type: Type.STRING, description: "The single most effective immediate action." },
-            causes: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  factor: { type: Type.STRING, description: "Pollution source (e.g., 'Construction Dust', 'Diesel Exhaust')." },
-                  confidence: { type: Type.INTEGER, description: "Confidence score (0-100)." },
-                  reasoning: { type: Type.STRING, description: "Scientific deduction based on the specific metrics provided." }
-                },
-                required: ["factor", "confidence", "reasoning"]
-              }
-            }
-          },
-          required: ["summary", "recommendation", "causes"]
-        }
+        // We add googleSearch to give it external awareness (Grounding)
+        tools: [{ googleSearch: {} }],
+        // NOTE: responseMimeType and responseSchema are NOT compatible with googleSearch tools
+        // We rely on the systemInstruction to enforce JSON structure.
       }
     });
 
-    const text = response.text;
+    let text = response.text;
     if (!text) throw new Error("No response from AI");
+    
+    // Clean up Markdown code blocks if present (e.g. ```json ... ```)
+    text = text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
     
     const parsed = JSON.parse(text);
     return {
@@ -86,14 +145,13 @@ export const generateZoneAnalysis = async (zone: Zone): Promise<Omit<AnalysisRep
 
   } catch (error) {
     console.error("Gemini Analysis Failed:", error);
-    // Fallback mock response if API fails or key is missing
     return {
       zoneId: zone.id,
-      summary: "AI Service Unavailable. Automated fallback diagnosis: Elevated Particulate Matter detected.",
-      recommendation: "Deploy manual inspection team to verify local sources.",
+      summary: "AI Service Unavailable or Content Policy Block. Falling back to sensor-only mode.",
+      recommendation: "Manual audit required.",
       causes: [
         { factor: "System Error", confidence: 0, reasoning: "Could not connect to Generative AI service." },
-        { factor: "Potential Dust", confidence: 50, reasoning: "Based on raw PM10 values (Fallback)." }
+        { factor: "Unknown", confidence: 50, reasoning: "Analysis failed." }
       ]
     };
   }
@@ -112,6 +170,20 @@ export const generateInterventionPlan = async (zone: Zone, analysis: AnalysisRep
     - **Phase 3 (Long-term):** Structural/Policy Changes (1-3 months).
     
     Tone: Professional, directive, and operational.
+    
+    **OUTPUT FORMAT RULE:**
+    You MUST return the result as a raw JSON object (no markdown formatting) with this exact structure:
+    {
+      "title": "Project Title",
+      "notes": "Strategic notes citing specific local regulations found via search.",
+      "phases": [
+        { 
+           "name": "Phase Name", 
+           "description": "Phase Description", 
+           "actions": ["Action 1", "Action 2"] 
+        }
+      ]
+    }
   `;
 
   const prompt = `
@@ -122,47 +194,30 @@ export const generateInterventionPlan = async (zone: Zone, analysis: AnalysisRep
     - Diagnosis: ${analysis.summary}
     - Primary Cause: ${analysis.causes[0]?.factor || 'General Pollution'}
     
-    Requirements:
-    1. Generate a professional Project Title.
-    2. Write brief strategic notes.
-    3. Define 3 phases (Immediate, Scaling, Long-term) with specific actions.
+    Task:
+    1. **SEARCH FIRST:** Use Google Search to find current air quality regulations, construction bans, or GRAP (Graded Response Action Plan) stages active in ${zone.city} *right now*.
+    2. **COMPLY:** Ensure the "Immediate" phase actions align with these specific local rules (e.g. "Enforce GRAP Stage 3 ban on demolition").
+    3. **PLAN:** Define the 3 phases (Immediate, Scaling, Long-term).
   `;
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-pro-preview',
       contents: prompt,
       config: {
         systemInstruction: systemInstruction,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            title: { type: Type.STRING },
-            notes: { type: Type.STRING },
-            phases: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  name: { type: Type.STRING },
-                  description: { type: Type.STRING },
-                  actions: {
-                    type: Type.ARRAY,
-                    items: { type: Type.STRING }
-                  }
-                },
-                required: ["name", "description", "actions"]
-              }
-            }
-          },
-          required: ["title", "notes", "phases"]
-        }
+        // Enable Grounding to find real regulations
+        tools: [{ googleSearch: {} }],
+        // responseMimeType: "application/json" <-- Removed to allow tools
+        // responseSchema <-- Removed to allow tools
       }
     });
 
-    const text = response.text;
+    let text = response.text;
     if (!text) throw new Error("No response from AI");
+
+    // Clean up Markdown code blocks if present
+    text = text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
 
     const parsed = JSON.parse(text);
     return {
@@ -178,8 +233,8 @@ export const generateInterventionPlan = async (zone: Zone, analysis: AnalysisRep
   } catch (error) {
     console.error("Gemini Project Gen Failed:", error);
     return {
-      title: "Manual Intervention Project",
-      notes: "AI generation failed. Please fill details manually.",
+      title: "Manual Intervention Project (Offline)",
+      notes: "AI generation failed. Please fill details manually. Ensure compliance with local regulations.",
       phases: [
         { id: 'fallback-ph-1', status: 'PENDING', name: "Phase 1: Immediate", description: "Immediate actions (Fallback)", actions: ["Assess site", "Check sensors"] },
         { id: 'fallback-ph-2', status: 'PENDING', name: "Phase 2: Scaling", description: "Scaling operations (Fallback)", actions: ["Deploy resources"] },

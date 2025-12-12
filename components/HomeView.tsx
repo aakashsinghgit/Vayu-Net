@@ -1,3 +1,5 @@
+
+
 import React from 'react';
 import { AppView, UserRole } from '../types';
 import { ArrowRight, Leaf, TrendingDown, Users, Award, Newspaper, LayoutDashboard, Microscope, FileBarChart, MessageSquare, ExternalLink } from 'lucide-react';
@@ -16,7 +18,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onChangeView, userRole }) => {
       source: "AQI Lab Blog",
       date: "Oct 24, 2023",
       category: "Success Story",
-      imageColor: "bg-green-100 text-green-600",
+      imageColor: "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400",
       excerpt: "Following the implementation of the Green Buffer Zone project, sensor data confirms a consistent drop in particulate matter during peak hours."
     },
     {
@@ -25,7 +27,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onChangeView, userRole }) => {
       source: "The Daily Monitor",
       date: "Oct 22, 2023",
       category: "External Report",
-      imageColor: "bg-orange-100 text-orange-600",
+      imageColor: "bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400",
       excerpt: "Despite early warnings from our Causal Analysis AI, satellite data shows an uptick in farm fires. How can we intervene faster?"
     },
     {
@@ -34,7 +36,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onChangeView, userRole }) => {
       source: "Tech Team Engineering Blog",
       date: "Oct 15, 2023",
       category: "Technology",
-      imageColor: "bg-indigo-100 text-indigo-600",
+      imageColor: "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400",
       excerpt: "How we reduced analysis generation time by 40% using the latest multimodal models to process satellite imagery and sensor logs simultaneously."
     }
   ];
@@ -43,7 +45,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onChangeView, userRole }) => {
     <div className="space-y-12 animate-in fade-in duration-700 pb-10">
       
       {/* 1. HERO SECTION: Positive Impact Summary */}
-      <section className="relative rounded-3xl overflow-hidden bg-slate-900 text-white p-8 md:p-12 shadow-2xl">
+      <section className="relative rounded-3xl overflow-hidden bg-slate-900 dark:bg-black text-white p-8 md:p-12 shadow-2xl border border-slate-800">
         {/* Abstract Background Pattern */}
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-indigo-900/50 to-transparent"></div>
         <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-green-500/20 rounded-full blur-3xl"></div>
@@ -85,30 +87,30 @@ const HomeView: React.FC<HomeViewProps> = ({ onChangeView, userRole }) => {
       <section>
         <div className="flex items-center justify-between mb-6">
             <div>
-                <h2 className="text-2xl font-bold text-slate-800">Latest from the Lab</h2>
-                <p className="text-slate-500">Updates on interventions, challenges, and technology.</p>
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Latest from the Lab</h2>
+                <p className="text-slate-500 dark:text-slate-400">Updates on interventions, challenges, and technology.</p>
             </div>
-            <button className="hidden md:flex items-center gap-1 text-indigo-600 font-medium hover:text-indigo-800 transition-colors">
+            <button className="hidden md:flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-medium hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors">
                 View Archive <ArrowRight size={16} />
             </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {MOCK_NEWS.map((news) => (
-                <div key={news.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow group cursor-pointer">
+                <div key={news.id} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden hover:shadow-md transition-shadow group cursor-pointer">
                     <div className={`h-40 w-full ${news.imageColor} flex items-center justify-center relative overflow-hidden`}>
-                         <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
+                         <div className="absolute inset-0 bg-black/5 dark:bg-white/5 group-hover:bg-transparent transition-colors"></div>
                          <Newspaper size={48} className="opacity-50" />
                     </div>
                     <div className="p-6">
                         <div className="flex justify-between items-start mb-3">
-                            <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">{news.category}</span>
+                            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded">{news.category}</span>
                             <span className="text-xs text-slate-400">{news.date}</span>
                         </div>
-                        <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-indigo-700 transition-colors line-clamp-2">
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2 group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors line-clamp-2">
                             {news.title}
                         </h3>
-                        <p className="text-slate-500 text-sm leading-relaxed line-clamp-3 mb-4">
+                        <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed line-clamp-3 mb-4">
                             {news.excerpt}
                         </p>
                         <div className="text-xs font-medium text-slate-400 flex items-center gap-1">
@@ -151,51 +153,51 @@ const HomeView: React.FC<HomeViewProps> = ({ onChangeView, userRole }) => {
 
       {/* 4. NAVIGATION GUIDE: CTA */}
       <section>
-        <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">How to use AQI Lab</h2>
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-6 text-center">How to use AQI Lab</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             
             <div 
                 onClick={() => onChangeView(AppView.DASHBOARD)}
-                className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer group text-center"
+                className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all cursor-pointer group text-center"
             >
-                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                     <LayoutDashboard size={24} />
                 </div>
-                <h3 className="font-bold text-slate-800 mb-2">Check Live Monitor</h3>
-                <p className="text-sm text-slate-500">View real-time pollution levels for your specific zone.</p>
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-2">Check Live Monitor</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">View real-time pollution levels for your specific zone.</p>
             </div>
 
             <div 
                 onClick={() => onChangeView(AppView.ANALYSIS)}
-                className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer group text-center"
+                className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all cursor-pointer group text-center"
             >
-                <div className="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                     <Microscope size={24} />
                 </div>
-                <h3 className="font-bold text-slate-800 mb-2">Causal Analysis</h3>
-                <p className="text-sm text-slate-500">Understand <i>why</i> pollution is happening with AI.</p>
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-2">Causal Analysis</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Understand <i>why</i> pollution is happening with AI.</p>
             </div>
 
             <div 
                 onClick={() => onChangeView(AppView.REPORTS)}
-                className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer group text-center"
+                className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all cursor-pointer group text-center"
             >
-                <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                     <FileBarChart size={24} />
                 </div>
-                <h3 className="font-bold text-slate-800 mb-2">Data Repository</h3>
-                <p className="text-sm text-slate-500">Access historical logs and project completion reports.</p>
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-2">Data Repository</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Access historical logs and project completion reports.</p>
             </div>
 
             <div 
                 onClick={() => onChangeView(AppView.FEEDBACK)}
-                className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer group text-center"
+                className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all cursor-pointer group text-center"
             >
-                <div className="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                     <MessageSquare size={24} />
                 </div>
-                <h3 className="font-bold text-slate-800 mb-2">Give Feedback</h3>
-                <p className="text-sm text-slate-500">
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-2">Give Feedback</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                     {userRole === 'SCIENTIST' ? 'Report functional issues to IT.' : 'Suggest improvements to the lab.'}
                 </p>
             </div>
