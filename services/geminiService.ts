@@ -1,45 +1,78 @@
 
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { AnalysisReport, InterventionProject, Zone, PhaseStatus } from "../types";
+
+// --- SYSTEM INSTRUCTIONS (PASTE UPDATES FROM AI STUDIO HERE) ---
+
+const FORENSIC_PROMPT = `
+You are an expert Environmental Forensic Scientist with real-time web access. 
+You have access to three data streams: 
+1. **Sensor Data** (Chemical composition).
+2. **Visual Feed** (Site images).
+3. **Audio Feed** (Recorded ambient noise from the site/drone).
+
+Your goal is to triangulate these sources to find the *exact* cause of pollution.
+
+Analytical Framework:
+- **Listen (Audio):** Identify machinery (jackhammers = construction), traffic patterns (horns/idling engines), or silence.
+- **See (Vision):** Look for smoke color (Black = Diesel, White = Biomass), dust plumes, or traffic density.
+- **Measure (Sensors):** Use PM ratios and Gas levels to confirm the physical evidence.
+- **Search (Grounding):** You MUST use Google Search to verify local news (e.g., "fire in {CITY} today", "traffic jam in {ZONE}") or weather conditions that corroborate the sensor data.
+
+If inputs conflict (e.g., Image is clear, but Sensors are high), use the Audio and Search findings to resolve it.
+
+**OUTPUT FORMAT RULE:** 
+You MUST return the result as a raw JSON object (no markdown formatting) with this exact structure:
+{
+  "summary": "Executive summary citing specific evidence and any relevant news found via search.",
+  "recommendation": "Primary actionable advice.",
+  "causes": [
+    { "factor": "Source Name", "confidence": 0-100, "reasoning": "Explanation citing sensor/audio/visual/web evidence." }
+  ]
+}
+`;
+
+const PROJECT_MANAGER_PROMPT = `
+You are a Senior Project Manager for Urban Infrastructure. 
+Convert air quality diagnostic reports into actionable, agile intervention projects.
+
+Planning Strategy:
+- **Phase 1 (Immediate):** Containment & Mitigation (0-48 hours).
+- **Phase 2 (Scaling):** Process Improvement & Enforcement (1-2 weeks).
+- **Phase 3 (Long-term):** Structural/Policy Changes (1-3 months).
+
+Tone: Professional, directive, and operational.
+
+**OUTPUT FORMAT RULE:**
+You MUST return the result as a raw JSON object (no markdown formatting) with this exact structure:
+{
+  "title": "Project Title",
+  "notes": "Strategic notes citing specific local regulations found via search.",
+  "phases": [
+    { 
+       "name": "Phase Name", 
+       "description": "Phase Description", 
+       "actions": ["Action 1", "Action 2"] 
+    }
+  ]
+}
+`;
+
+// --- API CLIENT ---
 
 const getAiClient = () => {
   // API key must be provided via environment variable
   return new GoogleGenAI({ apiKey: process.env.API_KEY });
 };
 
+// --- SERVICES ---
+
 export const generateZoneAnalysis = async (zone: Zone, imageFile?: File, audioBlob?: Blob): Promise<Omit<AnalysisReport, 'id' | 'timestamp'>> => {
   const ai = getAiClient();
   
-  // System Instruction: Tri-Modal Forensic Expert + Web Grounding
-  // Explicitly requesting JSON structure in the prompt since responseSchema is disabled with tools
-  const systemInstruction = `
-    You are an expert Environmental Forensic Scientist with real-time web access. 
-    You have access to three data streams: 
-    1. **Sensor Data** (Chemical composition).
-    2. **Visual Feed** (Site images).
-    3. **Audio Feed** (Recorded ambient noise from the site/drone).
-    
-    Your goal is to triangulate these sources to find the *exact* cause of pollution.
-
-    Analytical Framework:
-    - **Listen (Audio):** Identify machinery (jackhammers = construction), traffic patterns (horns/idling engines), or silence.
-    - **See (Vision):** Look for smoke color (Black = Diesel, White = Biomass), dust plumes, or traffic density.
-    - **Measure (Sensors):** Use PM ratios and Gas levels to confirm the physical evidence.
-    - **Search (Grounding):** You MUST use Google Search to verify local news (e.g., "fire in ${zone.city} today", "traffic jam in ${zone.name}") or weather conditions that corroborate the sensor data.
-
-    If inputs conflict (e.g., Image is clear, but Sensors are high), use the Audio and Search findings to resolve it.
-
-    **OUTPUT FORMAT RULE:** 
-    You MUST return the result as a raw JSON object (no markdown formatting) with this exact structure:
-    {
-      "summary": "Executive summary citing specific evidence and any relevant news found via search.",
-      "recommendation": "Primary actionable advice.",
-      "causes": [
-        { "factor": "Source Name", "confidence": 0-100, "reasoning": "Explanation citing sensor/audio/visual/web evidence." }
-      ]
-    }
-  `;
+  // Inject dynamic variables into the prompt if needed, 
+  // though here we pass context in the user prompt to keep the system instruction static and cache-friendly.
+  const systemInstruction = FORENSIC_PROMPT.replace('{CITY}', zone.city).replace('{ZONE}', zone.name);
 
   // Construct Multi-modal Content
   const parts: any[] = [];
@@ -160,32 +193,6 @@ export const generateZoneAnalysis = async (zone: Zone, imageFile?: File, audioBl
 export const generateInterventionPlan = async (zone: Zone, analysis: AnalysisReport): Promise<Omit<InterventionProject, 'id' | 'startDate' | 'status' | 'basedOnAnalysisId' | 'zoneId'>> => {
   const ai = getAiClient();
 
-  const systemInstruction = `
-    You are a Senior Project Manager for Urban Infrastructure. 
-    Convert air quality diagnostic reports into actionable, agile intervention projects.
-    
-    Planning Strategy:
-    - **Phase 1 (Immediate):** Containment & Mitigation (0-48 hours).
-    - **Phase 2 (Scaling):** Process Improvement & Enforcement (1-2 weeks).
-    - **Phase 3 (Long-term):** Structural/Policy Changes (1-3 months).
-    
-    Tone: Professional, directive, and operational.
-    
-    **OUTPUT FORMAT RULE:**
-    You MUST return the result as a raw JSON object (no markdown formatting) with this exact structure:
-    {
-      "title": "Project Title",
-      "notes": "Strategic notes citing specific local regulations found via search.",
-      "phases": [
-        { 
-           "name": "Phase Name", 
-           "description": "Phase Description", 
-           "actions": ["Action 1", "Action 2"] 
-        }
-      ]
-    }
-  `;
-
   const prompt = `
     Create an intervention project based on this analysis:
     
@@ -205,7 +212,7 @@ export const generateInterventionPlan = async (zone: Zone, analysis: AnalysisRep
       model: 'gemini-3-pro-preview',
       contents: prompt,
       config: {
-        systemInstruction: systemInstruction,
+        systemInstruction: PROJECT_MANAGER_PROMPT,
         // Enable Grounding to find real regulations
         tools: [{ googleSearch: {} }],
         // responseMimeType: "application/json" <-- Removed to allow tools
