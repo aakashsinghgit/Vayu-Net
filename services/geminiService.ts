@@ -11,10 +11,10 @@ const getAiClient = () => {
 export const generateZoneAnalysis = async (zone: Zone, imageFile?: File, audioBlob?: Blob): Promise<Omit<AnalysisReport, 'id' | 'timestamp'>> => {
   const ai = getAiClient();
   
-  // System Instruction: Tri-Modal Forensic Expert
+  // System Instruction: Tri-Modal Forensic Expert + Web Grounding
   // Explicitly requesting JSON structure in the prompt since responseSchema is disabled with tools
   const systemInstruction = `
-    You are an expert Environmental Forensic Scientist. 
+    You are an expert Environmental Forensic Scientist with real-time web access. 
     You have access to three data streams: 
     1. **Sensor Data** (Chemical composition).
     2. **Visual Feed** (Site images).
@@ -26,17 +26,17 @@ export const generateZoneAnalysis = async (zone: Zone, imageFile?: File, audioBl
     - **Listen (Audio):** Identify machinery (jackhammers = construction), traffic patterns (horns/idling engines), or silence.
     - **See (Vision):** Look for smoke color (Black = Diesel, White = Biomass), dust plumes, or traffic density.
     - **Measure (Sensors):** Use PM ratios and Gas levels to confirm the physical evidence.
-    - **Search (Grounding):** Check for reported events like fires or traffic accidents in the city.
+    - **Search (Grounding):** You MUST use Google Search to verify local news (e.g., "fire in ${zone.city} today", "traffic jam in ${zone.name}") or weather conditions that corroborate the sensor data.
 
-    If inputs conflict (e.g., Image is clear, but Sensors are high), use the Audio to resolve it.
+    If inputs conflict (e.g., Image is clear, but Sensors are high), use the Audio and Search findings to resolve it.
 
     **OUTPUT FORMAT RULE:** 
     You MUST return the result as a raw JSON object (no markdown formatting) with this exact structure:
     {
-      "summary": "Executive summary citing specific evidence.",
+      "summary": "Executive summary citing specific evidence and any relevant news found via search.",
       "recommendation": "Primary actionable advice.",
       "causes": [
-        { "factor": "Source Name", "confidence": 0-100, "reasoning": "Explanation." }
+        { "factor": "Source Name", "confidence": 0-100, "reasoning": "Explanation citing sensor/audio/visual/web evidence." }
       ]
     }
   `;
@@ -113,7 +113,7 @@ export const generateZoneAnalysis = async (zone: Zone, imageFile?: File, audioBl
     1. Identify the root cause.
     2. If Audio is present, explicitly mention what sound signatures were detected (e.g., heavy machinery vs traffic).
     3. If Image is present, correlate it with the sensor values.
-    4. Use Google Search to check for relevant news (fires, traffic) in ${zone.city} today.
+    4. **MANDATORY GROUNDING:** Use Google Search to check for specific recent incidents (fires, construction bans, accidents) in ${zone.city} that explain these metrics.
   `;
   
   parts.push({ text: promptText });
